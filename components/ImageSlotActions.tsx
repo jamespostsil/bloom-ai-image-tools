@@ -107,25 +107,9 @@ export const ImageSlotActions = React.forwardRef<
 
   const moreButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const closeTimeoutRef = React.useRef<number | null>(null);
-  const moreDelayTimeoutRef = React.useRef<number | null>(null);
+  const openTimeoutRef = React.useRef<number | null>(null);
 
   const [isThumbOverflowOpen, setIsThumbOverflowOpen] = React.useState(false);
-  const [isThumbMoreReady, setIsThumbMoreReady] = React.useState(false);
-
-  const clearMoreDelayTimeout = React.useCallback(() => {
-    if (moreDelayTimeoutRef.current != null) {
-      window.clearTimeout(moreDelayTimeoutRef.current);
-      moreDelayTimeoutRef.current = null;
-    }
-  }, []);
-
-  const scheduleMoreReady = React.useCallback(() => {
-    clearMoreDelayTimeout();
-    moreDelayTimeoutRef.current = window.setTimeout(() => {
-      setIsThumbMoreReady(true);
-      moreDelayTimeoutRef.current = null;
-    }, 100);
-  }, [clearMoreDelayTimeout]);
 
   const clearCloseTimeout = React.useCallback(() => {
     if (closeTimeoutRef.current != null) {
@@ -138,72 +122,61 @@ export const ImageSlotActions = React.forwardRef<
     clearCloseTimeout();
     closeTimeoutRef.current = window.setTimeout(() => {
       setIsThumbOverflowOpen(false);
-    }, 120);
+    }, 150);
   }, [clearCloseTimeout]);
+
+  const clearOpenTimeout = React.useCallback(() => {
+    if (openTimeoutRef.current != null) {
+      window.clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+  }, []);
+
+  const scheduleOpen = React.useCallback(() => {
+    clearOpenTimeout();
+    clearCloseTimeout();
+    if (isThumbOverflowOpen) return;
+    openTimeoutRef.current = window.setTimeout(() => {
+      setIsThumbOverflowOpen(true);
+      openTimeoutRef.current = null;
+    }, 250);
+  }, [clearOpenTimeout, clearCloseTimeout, isThumbOverflowOpen]);
 
   React.useEffect(() => {
     if (variant !== "thumb") return;
 
-    // During active dnd-kit drags, avoid hover-intent churn from pointer moves.
+    // During active dnd-kit drags, avoid hover interactions.
     if (isDndDragging) {
       setIsThumbOverflowOpen(false);
-      setIsThumbMoreReady(false);
-      clearMoreDelayTimeout();
       clearCloseTimeout();
+      clearOpenTimeout();
       return;
     }
 
     if (!isHovered) {
       setIsThumbOverflowOpen(false);
-      setIsThumbMoreReady(false);
-      clearMoreDelayTimeout();
       clearCloseTimeout();
-      return;
+      clearOpenTimeout();
     }
-
-    setIsThumbMoreReady(false);
-    scheduleMoreReady();
-
-    return () => {
-      clearMoreDelayTimeout();
-    };
-  }, [
-    variant,
-    isHovered,
-    isDndDragging,
-    scheduleMoreReady,
-    clearMoreDelayTimeout,
-    clearCloseTimeout,
-  ]);
+  }, [variant, isHovered, isDndDragging, clearCloseTimeout, clearOpenTimeout]);
 
   React.useEffect(() => {
     return () => {
-      clearMoreDelayTimeout();
       clearCloseTimeout();
+      clearOpenTimeout();
     };
-  }, [clearMoreDelayTimeout, clearCloseTimeout]);
+  }, [clearCloseTimeout, clearOpenTimeout]);
 
   React.useImperativeHandle(
     ref,
     () => ({
       notifyPointerMove: () => {
-        if (variant !== "thumb") return;
-        if (isDndDragging) return;
-        if (!isHovered) return;
-        if (isThumbOverflowOpen) return;
-
-        if (isThumbMoreReady) setIsThumbMoreReady(false);
-        scheduleMoreReady();
+        // No-op: we no longer use hover-intent settle timers for the "..." trigger.
+        // It now behaves like the Star and X buttons, staying visible as long as
+        // the slot is hovered.
       },
     }),
-    [
-      variant,
-      isHovered,
-      isDndDragging,
-      isThumbOverflowOpen,
-      isThumbMoreReady,
-      scheduleMoreReady,
-    ]
+    []
   );
 
   const defaultActionLabels: Record<keyof SlotControls, string> = {
@@ -259,12 +232,12 @@ export const ImageSlotActions = React.forwardRef<
   const infoAction: SlotActionButton | null =
     image && !disabled
       ? {
-          key: "info",
-          icon: Icons.Info,
-          title: "Image info",
-          onClick: onOpenInfo,
-          testId: "image-info-button",
-        }
+        key: "info",
+        icon: Icons.Info,
+        title: "Image info",
+        onClick: onOpenInfo,
+        testId: "image-info-button",
+      }
       : null;
 
   const actionsWithInfo =
@@ -279,14 +252,14 @@ export const ImageSlotActions = React.forwardRef<
 
   const panelActions = shouldShowMagnifierToggle
     ? insertBeforeRemove(orderedActions, {
-        key: "magnifier",
-        icon: Icons.Magnifier,
-        title: isMagnifierPinned ? "Disable magnifier" : "Enable magnifier",
-        onClick: onToggleMagnifier,
-        ariaPressed: isMagnifierPinned,
-        isActive: isMagnifierPinned,
-        testId: "image-slot-magnifier-toggle",
-      } satisfies SlotActionButton)
+      key: "magnifier",
+      icon: Icons.Magnifier,
+      title: isMagnifierPinned ? "Disable magnifier" : "Enable magnifier",
+      onClick: onToggleMagnifier,
+      ariaPressed: isMagnifierPinned,
+      isActive: isMagnifierPinned,
+      testId: "image-slot-magnifier-toggle",
+    } satisfies SlotActionButton)
     : orderedActions;
 
   const renderActionButton = (
@@ -302,16 +275,19 @@ export const ImageSlotActions = React.forwardRef<
       border: "none",
       bgcolor: isActive ? theme.colors.accent : theme.colors.overlay,
       color: isActive ? theme.colors.appBackground : theme.colors.textPrimary,
-      boxShadow: theme.colors.panelShadow,
-      backdropFilter: "blur(6px)",
+      boxShadow: "none",
+      backdropFilter: "blur(8px)",
       transition:
-        "background-color 120ms ease, color 120ms ease, transform 70ms ease, filter 120ms ease",
+        "background-color 150ms ease, color 150ms ease, transform 100ms ease, filter 150ms ease, box-shadow 150ms ease",
       WebkitTapHighlightColor: "transparent",
       "&:hover": {
-        filter: "brightness(1.08)",
+        bgcolor: isActive ? theme.colors.accentHover : theme.colors.overlayStrong,
+        filter: "contrast(1.1)",
+        transform: "scale(1.05)",
+        boxShadow: theme.colors.panelShadow,
       },
       "&:active": {
-        transform: "translateY(1px)",
+        transform: "scale(0.95)",
       },
       "&.Mui-focusVisible": {
         filter: "brightness(1.1)",
@@ -415,8 +391,7 @@ export const ImageSlotActions = React.forwardRef<
 
     const showRemove = isHovered;
     const showMoreTrigger =
-      overflowActions.length > 0 &&
-      ((isHovered && isThumbMoreReady) || isThumbOverflowOpen);
+      overflowActions.length > 0 && (isHovered || isThumbOverflowOpen);
 
     return (
       <>
@@ -458,19 +433,19 @@ export const ImageSlotActions = React.forwardRef<
             >
               <div
                 onMouseEnter={() => {
-                  if (!isThumbOverflowOpen) return;
-                  clearCloseTimeout();
+                  scheduleOpen();
                 }}
                 onMouseLeave={() => {
+                  clearOpenTimeout();
                   scheduleClose();
                 }}
                 onFocusCapture={() => {
-                  if (!isThumbOverflowOpen) return;
                   clearCloseTimeout();
                 }}
                 onBlurCapture={(event) => {
                   const next = event.relatedTarget as Node | null;
                   if (!next || !event.currentTarget.contains(next)) {
+                    clearOpenTimeout();
                     scheduleClose();
                   }
                 }}
@@ -503,20 +478,27 @@ export const ImageSlotActions = React.forwardRef<
                     p: `${buttonPadding}px`,
                     borderRadius: "50%",
                     border: "none",
-                    bgcolor: theme.colors.overlay,
-                    color: theme.colors.textPrimary,
-                    boxShadow: theme.colors.panelShadow,
-                    backdropFilter: "blur(6px)",
+                    bgcolor: isThumbOverflowOpen ? theme.colors.accent : theme.colors.overlay,
+                    color: isThumbOverflowOpen
+                      ? theme.colors.appBackground
+                      : theme.colors.textPrimary,
+                    boxShadow: "none",
+                    backdropFilter: "blur(8px)",
                     transition:
-                      "opacity 120ms ease, transform 70ms ease, filter 120ms ease",
+                      "opacity 140ms ease, background-color 140ms ease, color 140ms ease, transform 100ms ease, filter 140ms ease, box-shadow 140ms ease",
                     opacity: showMoreTrigger ? 1 : 0,
                     pointerEvents: showMoreTrigger ? "auto" : "none",
                     WebkitTapHighlightColor: "transparent",
                     "&:hover": {
-                      filter: "brightness(1.08)",
+                      bgcolor: isThumbOverflowOpen
+                        ? theme.colors.accentHover
+                        : theme.colors.overlayStrong,
+                      filter: "contrast(1.1)",
+                      transform: "scale(1.05)",
+                      boxShadow: theme.colors.panelShadow,
                     },
                     "&:active": {
-                      transform: "translateY(1px)",
+                      transform: "scale(0.95)",
                     },
                     "&.Mui-focusVisible": {
                       filter: "brightness(1.1)",

@@ -27,6 +27,7 @@ import {
   ToolParamsById,
 } from "../types";
 import { ImageToolsBar } from "./ImageToolsBar";
+import { HistoryGallery } from "./HistoryGallery";
 import {
   editImage,
   fetchOpenRouterCredits,
@@ -43,7 +44,7 @@ import { DEFAULT_MODEL, MODEL_CATALOG } from "../lib/modelsCatalog";
 import { ModelChooserDialog } from "./ModelChooserDialog";
 import { OpenRouterCreditsHeader } from "./OpenRouterCreditsHeader";
 import { AIImageToolsSettingsDialog } from "./AIImageToolsSettingsDialog";
-import { Icons } from "./Icons";
+import { Icon, Icons } from "./Icons";
 import bloomLogo from "../assets/bloom.svg";
 import {
   createToolParamDefaults,
@@ -226,8 +227,8 @@ const sanitizePersistedAppState = (
     id && accessibleIds.has(id) ? id : null;
   const referenceImageIds = Array.isArray(persisted?.referenceImageIds)
     ? (persisted?.referenceImageIds as string[]).filter((id) =>
-        accessibleIds.has(id)
-      )
+      accessibleIds.has(id)
+    )
     : [];
 
   return {
@@ -342,6 +343,7 @@ export function ImageToolsWorkspace({
   );
   const [isModelDialogOpen, setIsModelDialogOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"workspace" | "history">("workspace");
   const [isHydrated, setIsHydrated] = useState(false);
   const [credits, setCredits] = useState<OpenRouterCredits | null>(null);
   const [creditsLoading, setCreditsLoading] = useState(false);
@@ -373,8 +375,8 @@ export function ImageToolsWorkspace({
     ? usingEnvKey
       ? "OpenRouter key supplied by environment"
       : authMethod === "oauth"
-      ? "OpenRouter connected via OAuth"
-      : "OpenRouter API key linked"
+        ? "OpenRouter connected via OAuth"
+        : "OpenRouter API key linked"
     : "OpenRouter not connected";
   const historyStatusLabel = isFolderPersistenceActive
     ? `History syncing to ${fsBinding?.directoryName || "linked folder"}`
@@ -402,10 +404,10 @@ export function ImageToolsWorkspace({
         const errorDetails =
           error instanceof Error
             ? {
-                name: error.name,
-                message: error.message,
-                stack: error.stack,
-              }
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
             : error;
         console.error("Failed to save history image", {
           historyId: item.id,
@@ -791,7 +793,7 @@ export function ImageToolsWorkspace({
 
           const persistedStyleId =
             typeof persisted.selectedArtStyleId === "string" &&
-            persisted.selectedArtStyleId.trim().length
+              persisted.selectedArtStyleId.trim().length
               ? persisted.selectedArtStyleId
               : null;
 
@@ -1788,6 +1790,14 @@ export function ImageToolsWorkspace({
       if (!config.allowRemove) {
         return;
       }
+
+      if (
+        !window.confirm(
+          "Are you sure you want to remove this image from the tray?"
+        )
+      ) {
+        return;
+      }
       if (stripId === "starred") {
         const entry = state.history.find((item) => item.id === imageId);
         if (entry?.isStarred) {
@@ -1859,8 +1869,8 @@ export function ImageToolsWorkspace({
   const creditsSecondaryLabel =
     effectiveApiKey && credits && !creditsLoading && !creditsError
       ? `${formatCreditsValue(credits.totalUsage)} used / ${formatCreditsValue(
-          credits.totalCredits
-        )} total`
+        credits.totalCredits
+      )} total`
       : null;
 
   const creditsTooltipLines = [
@@ -1874,19 +1884,19 @@ export function ImageToolsWorkspace({
   const creditsProgressFraction =
     credits && credits.totalCredits > 0
       ? Math.min(
-          1,
-          Math.max(0, credits.remainingCredits / credits.totalCredits)
-        )
+        1,
+        Math.max(0, credits.remainingCredits / credits.totalCredits)
+      )
       : null;
 
   const creditsProgressAriaProps: React.HTMLAttributes<HTMLElement> =
     creditsProgressFraction !== null && credits
       ? {
-          role: "progressbar",
-          "aria-valuemin": 0,
-          "aria-valuemax": credits.totalCredits,
-          "aria-valuenow": credits.remainingCredits,
-        }
+        role: "progressbar",
+        "aria-valuemin": 0,
+        "aria-valuemax": credits.totalCredits,
+        "aria-valuenow": credits.remainingCredits,
+      }
       : { role: "status" };
 
   const isCreditsLow =
@@ -1901,8 +1911,8 @@ export function ImageToolsWorkspace({
   const progressTrackBackground = creditsError
     ? "rgba(239, 68, 68, 0.15)"
     : isCreditsLow
-    ? theme.colors.dangerSubtle
-    : theme.colors.surfaceAlt;
+      ? theme.colors.dangerSubtle
+      : theme.colors.surfaceAlt;
 
   const progressBorderColor = isCreditsLow
     ? theme.colors.danger
@@ -1911,8 +1921,8 @@ export function ImageToolsWorkspace({
   const progressFillColor = creditsError
     ? "#ef4444"
     : isCreditsLow
-    ? theme.colors.danger
-    : theme.colors.accent;
+      ? theme.colors.danger
+      : theme.colors.accent;
 
   const shouldShowConnectToOpenRouterCTA = !effectiveApiKey;
 
@@ -1955,6 +1965,41 @@ export function ImageToolsWorkspace({
             <Typography variant="h6" component="h1" fontWeight={700}>
               Bloom AI Image Tools
             </Typography>
+          </Stack>
+
+          <Stack direction="row" spacing={1} sx={{ bgcolor: theme.colors.surfaceAlt, p: 0.5, borderRadius: "999px", border: `1px solid ${theme.colors.border}` }}>
+            <Button
+              size="small"
+              onClick={() => setViewMode("workspace")}
+              startIcon={<Icon path={Icons.Layout} width={16} height={16} />}
+              sx={{
+                borderRadius: "999px",
+                px: 2,
+                color: viewMode === "workspace" ? theme.colors.textPrimary : theme.colors.textMuted,
+                bgcolor: viewMode === "workspace" ? theme.colors.surfaceRaised : "transparent",
+                '&:hover': { bgcolor: viewMode === "workspace" ? theme.colors.surfaceRaised : "rgba(255,255,255,0.05)" },
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              Workspace
+            </Button>
+            <Button
+              size="small"
+              onClick={() => setViewMode("history")}
+              startIcon={<Icon path={Icons.Grid} width={16} height={16} />}
+              sx={{
+                borderRadius: "999px",
+                px: 2,
+                color: viewMode === "history" ? theme.colors.textPrimary : theme.colors.textMuted,
+                bgcolor: viewMode === "history" ? theme.colors.surfaceRaised : "transparent",
+                '&:hover': { bgcolor: viewMode === "history" ? theme.colors.surfaceRaised : "rgba(255,255,255,0.05)" },
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              Gallery
+            </Button>
           </Stack>
 
           <Stack spacing={1} alignItems="flex-end">
@@ -2053,49 +2098,61 @@ export function ImageToolsWorkspace({
         </Box>
 
         <Box sx={{ flex: 1, minHeight: 0, display: "flex" }}>
-          <ImageToolsBar
-            appState={state}
-            selectedModel={selectedModel || null}
-            targetImage={targetImage}
-            referenceImages={referenceItems}
-            rightImage={rightItem}
-            activeToolId={activeToolId}
-            toolParams={paramsByTool}
-            historyItems={accessibleHistoryItems}
-            hasHiddenHistory={hasHiddenHistory}
-            onRequestHistoryAccess={() => {
-              if (!fsSupported) {
-                setIsSettingsDialogOpen(true);
-                return;
-              }
-              void handleEnableFolderStorage();
-            }}
-            thumbnailStrips={thumbnailStrips}
-            thumbnailStripConfigs={resolvedThumbnailStripConfigs}
-            onStripItemDrop={handleStripItemDrop}
-            onStripRemoveItem={handleStripRemoveItem}
-            onStripPinToggle={handleStripPinToggle}
-            onStripActivate={handleStripActivate}
-            onStripDragActivate={handleStripDragActivate}
-            onApplyTool={handleApplyTool}
-            onCancelProcessing={handleCancelProcessing}
-            onToolSelect={handleToolSelectWithConstraints}
-            onParamChange={handleParamChange}
-            selectedArtStyleId={selectedArtStyleId}
-            onArtStyleChange={handleArtStyleChange}
-            onSetTarget={handleSetTargetImage}
-            onSetReferenceAt={handleSetReferenceAt}
-            onSetRight={handleSetRightPanel}
-            onUploadTarget={handleUploadTarget}
-            onRemoveReferenceAt={handleRemoveReferenceAt}
-            onUploadReference={handleUploadReference}
-            onClearTarget={handleClearTargetImage}
-            onClearRight={handleClearRightPanel}
-            onUploadRight={handleUploadRight}
-            onSelectHistoryItem={handleSelectHistoryItem}
-            onToggleHistoryStar={handleToggleHistoryStar}
-            onDismissError={handleDismissError}
-          />
+          {viewMode === "workspace" ? (
+            <ImageToolsBar
+              appState={state}
+              selectedModel={selectedModel || null}
+              targetImage={targetImage}
+              referenceImages={referenceItems}
+              rightImage={rightItem}
+              activeToolId={activeToolId}
+              toolParams={paramsByTool}
+              historyItems={accessibleHistoryItems}
+              hasHiddenHistory={hasHiddenHistory}
+              onRequestHistoryAccess={() => {
+                if (!fsSupported) {
+                  setIsSettingsDialogOpen(true);
+                  return;
+                }
+                void handleEnableFolderStorage();
+              }}
+              thumbnailStrips={thumbnailStrips}
+              thumbnailStripConfigs={resolvedThumbnailStripConfigs}
+              onStripItemDrop={handleStripItemDrop}
+              onStripRemoveItem={handleStripRemoveItem}
+              onStripPinToggle={handleStripPinToggle}
+              onStripActivate={handleStripActivate}
+              onStripDragActivate={handleStripDragActivate}
+              onApplyTool={handleApplyTool}
+              onCancelProcessing={handleCancelProcessing}
+              onToolSelect={handleToolSelectWithConstraints}
+              onParamChange={handleParamChange}
+              selectedArtStyleId={selectedArtStyleId}
+              onArtStyleChange={handleArtStyleChange}
+              onSetTarget={handleSetTargetImage}
+              onSetReferenceAt={handleSetReferenceAt}
+              onSetRight={handleSetRightPanel}
+              onUploadTarget={handleUploadTarget}
+              onRemoveReferenceAt={handleRemoveReferenceAt}
+              onUploadReference={handleUploadReference}
+              onClearTarget={handleClearTargetImage}
+              onClearRight={handleClearRightPanel}
+              onUploadRight={handleUploadRight}
+              onSelectHistoryItem={handleSelectHistoryItem}
+              onToggleHistoryStar={handleToggleHistoryStar}
+              onDismissError={handleDismissError}
+            />
+          ) : (
+            <HistoryGallery
+              history={accessibleHistoryItems}
+              onToggleStar={handleToggleHistoryStar}
+              onRemove={(id) => handleStripRemoveItem("history", id)}
+              onSelect={(id) => {
+                handleSelectHistoryItem(id);
+                setViewMode("workspace");
+              }}
+            />
+          )}
         </Box>
 
         <AIImageToolsSettingsDialog

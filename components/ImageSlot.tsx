@@ -210,11 +210,9 @@ const TRANSPARENCY_BLOOM_BLUE = "#8ecad2"; // 50% blend of Bloom blue + white
 const TRANSPARENCY_PATTERN_SIZE = TRANSPARENCY_TILE_SIZE * 2;
 const TRANSPARENCY_CHECKERBOARD_IMAGE = (() => {
   const tile = TRANSPARENCY_TILE_SIZE;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${
-    tile * 2
-  }" height="${
-    tile * 2
-  }" shape-rendering="crispEdges"><rect width="${tile}" height="${tile}" fill="${TRANSPARENCY_BLOOM_BLUE}"/><rect x="${tile}" y="${tile}" width="${tile}" height="${tile}" fill="${TRANSPARENCY_BLOOM_BLUE}"/></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${tile * 2
+    }" height="${tile * 2
+    }" shape-rendering="crispEdges"><rect width="${tile}" height="${tile}" fill="${TRANSPARENCY_BLOOM_BLUE}"/><rect x="${tile}" y="${tile}" width="${tile}" height="${tile}" fill="${TRANSPARENCY_BLOOM_BLUE}"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 })();
 
@@ -299,11 +297,11 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
 
   const lastDragPointerDownRef = React.useRef<
     | {
-        t: number;
-        x: number;
-        y: number;
-        pointerType: string;
-      }
+      t: number;
+      x: number;
+      y: number;
+      pointerType: string;
+    }
     | null
   >(null);
 
@@ -392,13 +390,13 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
       const pngMetadata = modelId
         ? isNewImageTool
           ? {
-              IllustratorModel: modelName,
-              IllustratorModelId: modelId,
-            }
+            IllustratorModel: modelName,
+            IllustratorModelId: modelId,
+          }
           : {
-              EditorModel: modelName,
-              EditorModelId: modelId,
-            }
+            EditorModel: modelName,
+            EditorModelId: modelId,
+          }
         : undefined;
 
       await copyImageToClipboard(image.imageData, pngMetadata);
@@ -710,19 +708,19 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
             variant === "thumb"
               ? "transparent"
               : isDragOver
-              ? theme.colors.dropZone
-              : isHovered
-              ? hoverBackgroundColor
-              : baseBackgroundColor,
+                ? theme.colors.dropZone
+                : isHovered
+                  ? hoverBackgroundColor
+                  : baseBackgroundColor,
           opacity: disabled
             ? 0.4
             : variant === "thumb"
-            ? isSelected
-              ? 1
-              : isHovered
-              ? 1
-              : 0.8
-            : 1,
+              ? isSelected
+                ? 1
+                : isHovered
+                  ? 1
+                  : 0.8
+              : 1,
           cursor:
             !disabled && (onClick || variant === "thumb")
               ? "pointer"
@@ -732,10 +730,10 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
           borderColor: isDragOver
             ? theme.colors.dropZoneBorder
             : variant === "thumb"
-            ? isSelected
-              ? theme.colors.accent
-              : theme.colors.border
-            : theme.colors.panelBorder,
+              ? isSelected
+                ? theme.colors.accent
+                : theme.colors.border
+              : theme.colors.panelBorder,
           boxShadow:
             variant === "thumb"
               ? isSelected
@@ -751,17 +749,6 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
         onDrop={handleDrop}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onMouseMove={() => {
-          if (variant !== "thumb") return;
-          if (!isHovered) return;
-          if (disabled) return;
-          // When dnd-kit is actively dragging, avoid hover-intent state churn.
-          if (isDndDragging) return;
-
-          // Hover-intent: only reveal the "..." trigger after the pointer has
-          // settled for 500ms. Any movement resets the timer.
-          thumbActionsRef.current?.notifyPointerMove();
-        }}
         onContextMenu={handleContextMenu}
         onKeyDown={(event) => {
           if (!onClick || disabled) return;

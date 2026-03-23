@@ -22,11 +22,24 @@ export const ImageSlotOverlayStar: React.FC<ImageSlotOverlayStarProps> = ({
   cornerOffset,
   buttonPadding,
 }) => {
+  const [isInternalHover, setIsInternalHover] = React.useState(false);
+
   if (!isVisible) return null;
+
+  const showBackground = isStarred ? isInternalHover : true;
+  const currentBg = isStarred
+    ? isInternalHover
+      ? theme.colors.overlaySoft
+      : "transparent"
+    : isInternalHover
+      ? theme.colors.overlayStrong
+      : theme.colors.overlay;
 
   return (
     <button
       type="button"
+      onMouseEnter={() => setIsInternalHover(true)}
+      onMouseLeave={() => setIsInternalHover(false)}
       onClick={(event) => {
         event.stopPropagation();
         onToggle();
@@ -43,22 +56,27 @@ export const ImageSlotOverlayStar: React.FC<ImageSlotOverlayStarProps> = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: isStarred ? "transparent" : theme.colors.overlay,
+        backgroundColor: currentBg,
         color: isStarred ? theme.colors.accent : theme.colors.textPrimary,
         opacity: isStarred ? 1 : isHovered ? 1 : 0,
         transition:
-          "opacity 120ms ease, color 120ms ease, box-shadow 120ms ease",
-        boxShadow: "none",
-        backdropFilter: isStarred ? "none" : "blur(6px)",
+          "opacity 120ms ease, background-color 140ms ease, color 120ms ease, transform 70ms ease",
+        boxShadow: isInternalHover ? theme.colors.panelShadow : "none",
+        backdropFilter: showBackground ? "blur(8px)" : "none",
         zIndex: 25,
         pointerEvents: disabled || (!isStarred && !isHovered) ? "none" : "auto",
+        cursor: "pointer",
+        transform: isInternalHover ? "scale(1.05)" : "scale(1)",
       }}
     >
       {isStarred ? (
         <StarIcon
           sx={{
             fontSize: 18,
-            filter: `drop-shadow(${theme.colors.panelShadow})`,
+            filter: isInternalHover
+              ? "none"
+              : `drop-shadow(${theme.colors.panelShadow})`,
+            transition: "filter 120ms ease",
           }}
         />
       ) : (

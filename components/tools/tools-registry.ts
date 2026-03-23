@@ -219,7 +219,7 @@ export const TOOLS: ToolDefinition[] = [
       },
       {
         name: "character",
-        label: "Target Character",
+        label: "Target Character(s)",
         type: "text",
         placeholder: "e.g. the boy, the girl",
         optional: true,
@@ -240,7 +240,7 @@ export const TOOLS: ToolDefinition[] = [
         ? `${label}. Appearance cues: ${description}`
         : label;
 
-      return `Change the ethnicity of ${character} to ${ethnicityDetails}. Maintain the pose, clothing, and art style.  Do not put the people traditional clothing unless the original image had that. Just show them in everyday clothes common to this region, unless I direct you otherwise.`;
+      return `Change the ethnicity of ${character} to ${ethnicityDetails}. Maintain the pose and art style. Update the clothing, shoes, etc to reflect everyday attire common in the target ethnicity's region, but avoid traditional, ceremonial, or historical costumes unless otherwise directed. Carefully analyze the foreground and background landscape and scenery and redraw it to authentically match the environment and architecture of the target ethnicity's region, removing or changing elements that do not match the target ethnicity's region. Maintain high anatomical accuracy for the target ethnicity with symmetrical, well-defined, clean facial features. Ensure correct anatomical proportions for limbs and that the eyes, nose, and mouth are sharp, clear, and free of distortion or artifacts.`;
     },
     referenceImages: "0",
   },
