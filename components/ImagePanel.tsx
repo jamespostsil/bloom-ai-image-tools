@@ -40,6 +40,7 @@ type SingleImagePanelProps = {
   onToggleStar?: () => void;
   dndDropId?: string;
   dndDragId?: string;
+  onClick?: () => void;
 };
 
 type GridImagePanelProps = {
@@ -51,6 +52,7 @@ type GridImagePanelProps = {
   onSlotUpload: (file: File, slotIndex: number) => void;
   onSlotDrop: (imageId: string, slotIndex: number) => void;
   onSlotRemove: (slotIndex: number) => void;
+  onImageClick?: (id: string) => void;
 };
 
 export type ImagePanelProps = SingleImagePanelProps | GridImagePanelProps;
@@ -68,6 +70,7 @@ export const ImagePanel: React.FC<ImagePanelProps> = (props) => {
       onSlotDrop,
       onSlotUpload,
       onSlotRemove,
+      onImageClick,
       panelTestId,
     } = props;
 
@@ -177,6 +180,11 @@ export const ImagePanel: React.FC<ImagePanelProps> = (props) => {
                       }
                       // dnd-kit handles internal drags; keep native drag only when explicit.
                       draggableImageId={undefined}
+                      onClick={
+                        slot.image
+                          ? () => onImageClick?.(slot.image!.id)
+                          : undefined
+                      }
                     />
                   </DndImageSlotWrapper>
                 </Box>
@@ -206,6 +214,7 @@ export const ImagePanel: React.FC<ImagePanelProps> = (props) => {
     onToggleStar,
     dndDropId,
     dndDragId,
+    onClick,
   } = props;
 
   const starState =
@@ -331,6 +340,7 @@ export const ImagePanel: React.FC<ImagePanelProps> = (props) => {
             : undefined
         }
         starState={starState}
+        onClick={onClick}
       />
     </DndImageSlotWrapper>
   );

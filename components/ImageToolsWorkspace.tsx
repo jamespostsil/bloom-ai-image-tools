@@ -44,6 +44,7 @@ import { DEFAULT_MODEL, MODEL_CATALOG } from "../lib/modelsCatalog";
 import { ModelChooserDialog } from "./ModelChooserDialog";
 import { OpenRouterCreditsHeader } from "./OpenRouterCreditsHeader";
 import { AIImageToolsSettingsDialog } from "./AIImageToolsSettingsDialog";
+import { ImageLightboxDialog } from "./ImageLightboxDialog";
 import { Icon, Icons } from "./Icons";
 import bloomLogo from "../assets/bloom.svg";
 import {
@@ -353,6 +354,7 @@ export function ImageToolsWorkspace({
   );
   const [fsLoading, setFsLoading] = useState(false);
   const [fsError, setFsError] = useState<string | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<ImageRecord | null>(null);
   const [fsSupported, setFsSupported] = useState(() =>
     supportsFileSystemAccess()
   );
@@ -1819,6 +1821,13 @@ export function ImageToolsWorkspace({
     setSelectedModelId(modelId);
   };
 
+  const handleImageClick = useCallback((id: string) => {
+    const match = accessibleHistoryItems.find((h) => h.id === id) || null;
+    if (match) {
+      setLightboxImage(match);
+    }
+  }, [accessibleHistoryItems]);
+
   const targetImage = state.targetImageId
     ? accessibleHistoryItems.find((h) => h.id === state.targetImageId) || null
     : null;
@@ -2141,6 +2150,7 @@ export function ImageToolsWorkspace({
               onSelectHistoryItem={handleSelectHistoryItem}
               onToggleHistoryStar={handleToggleHistoryStar}
               onDismissError={handleDismissError}
+              onImageClick={handleImageClick}
             />
           ) : (
             <HistoryGallery
@@ -2189,6 +2199,12 @@ export function ImageToolsWorkspace({
           selectedModelId={selectedModel?.id || ""}
           onSelect={handleSelectModel}
           onClose={() => setIsModelDialogOpen(false)}
+        />
+
+        <ImageLightboxDialog
+          image={lightboxImage}
+          isOpen={!!lightboxImage}
+          onClose={() => setLightboxImage(null)}
         />
       </Box>
     </ThemeProvider>

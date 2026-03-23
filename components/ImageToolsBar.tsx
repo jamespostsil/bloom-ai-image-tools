@@ -99,6 +99,7 @@ interface ImageToolsPanelBar {
   onSelectHistoryItem: (id: string) => void;
   onToggleHistoryStar: (id: string) => void;
   onDismissError: () => void;
+  onImageClick?: (id: string) => void;
 }
 
 export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
@@ -137,6 +138,7 @@ export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
   onSelectHistoryItem,
   onToggleHistoryStar,
   onDismissError,
+  onImageClick,
 }) => {
   const hasTargetImage = !!targetImage;
   const debugLog = React.useCallback((...args: any[]) => {
@@ -435,6 +437,7 @@ export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
               isProcessing={appState.isProcessing}
               activeToolId={activeToolId}
               onToggleHistoryStar={onToggleHistoryStar}
+              onImageClick={onImageClick}
             />
 
             <ThumbnailStripsCollection

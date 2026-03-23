@@ -135,6 +135,7 @@ interface WorkspaceProps {
   isProcessing: boolean;
   activeToolId: string | null;
   onToggleHistoryStar: (id: string) => void;
+  onImageClick?: (id: string) => void;
 }
 
 export const Workspace: React.FC<WorkspaceProps> = ({
@@ -153,6 +154,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   isProcessing,
   activeToolId,
   onToggleHistoryStar,
+  onImageClick,
 }) => {
   const tool = activeToolId ? TOOLS.find((t) => t.id === activeToolId) : null;
   const referenceMode = tool?.referenceImages ?? "0";
@@ -420,6 +422,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                       ? () => onToggleHistoryStar(targetImage.id)
                       : undefined
                   }
+                  onClick={
+                    targetImage ? () => onImageClick?.(targetImage.id) : undefined
+                  }
                 />
               </Box>
             )}
@@ -495,6 +500,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             isLoading={isProcessing}
             onToggleStar={
               rightImage ? () => onToggleHistoryStar(rightImage.id) : undefined
+            }
+            onClick={
+              rightImage ? () => onImageClick?.(rightImage.id) : undefined
             }
           />
         </Box>

@@ -240,7 +240,18 @@ export const TOOLS: ToolDefinition[] = [
         ? `${label}. Appearance cues: ${description}`
         : label;
 
-      return `Change the ethnicity of ${character} to ${ethnicityDetails}. Maintain the pose and art style. Update the clothing, shoes, etc to reflect everyday attire common in the target ethnicity's region, but avoid traditional, ceremonial, or historical costumes unless otherwise directed. Carefully analyze the foreground and background landscape and scenery and redraw it to authentically match the environment and architecture of the target ethnicity's region, removing or changing elements that do not match the target ethnicity's region. Maintain high anatomical accuracy for the target ethnicity with symmetrical, well-defined, clean facial features. Ensure correct anatomical proportions for limbs and that the eyes, nose, and mouth are sharp, clear, and free of distortion or artifacts.`;
+      const promptText = `Task: Change the ethnicity of the target.
+Target Character: ${character}
+Target Ethnicity: ${label}
+
+# Attributes & Instructions:
+- Appearance: ${description || "Match the target ethnicity."}
+- Art Style: Maintain the original pose and art style exactly.
+- Attire: Update the clothing, shoes, etc. to reflect everyday attire common in the target ethnicity's region. Do NOT use traditional, ceremonial, or historical costumes unless otherwise directed.
+- Environment: Carefully analyze the foreground and background landscape and scenery. Redraw it to authentically match the environment and architecture of the target ethnicity's region. Remove or change any elements that do not match.
+- Quality Constraints: Maintain high anatomical accuracy for the target ethnicity with symmetrical, well-defined, clean facial features. Ensure correct anatomical proportions for limbs. The eyes, nose, and mouth must be sharp, clear, and free of distortion or artifacts.`;
+
+      return promptText;
     },
     referenceImages: "0",
   },
