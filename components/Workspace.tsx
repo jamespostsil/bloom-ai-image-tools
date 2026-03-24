@@ -485,7 +485,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
               top: 16,
               left: `${splitters.horizontal * 100}%`,
               transform: "translateX(-50%)",
-              zIndex: 100,
+              zIndex: 10, // Ensure it's above the splitter but below panel controls
             }}
           >
             <Box
@@ -509,13 +509,12 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 gap: 1,
                 textTransform: "uppercase",
                 "&:hover": {
-                  transform: "translateX(-50%)",
                   boxShadow: "0 12px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.3)",
                   bgcolor: theme.colors.accent,
                   filter: "brightness(1.1)",
                 },
                 "&:active": {
-                  transform: "translateX(-50%) translateY(0) scale(0.98)",
+                  transform: "translateY(1px) scale(0.98)",
                 },
               }}
             >

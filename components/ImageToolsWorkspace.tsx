@@ -2161,8 +2161,8 @@ export function ImageToolsWorkspace({
               onToggleStar={handleToggleHistoryStar}
               onRemove={(id) => handleStripRemoveItem("history", id)}
               onSelect={(id) => {
-                handleSelectHistoryItem(id);
-                setViewMode("workspace");
+                const match = accessibleHistoryItems.find((h) => h.id === id);
+                if (match) setLightboxImage(match);
               }}
             />
           )}

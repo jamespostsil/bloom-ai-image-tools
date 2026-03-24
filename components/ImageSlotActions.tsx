@@ -322,7 +322,7 @@ export const ImageSlotActions = React.forwardRef<
       return (
         <Tooltip
           key={action.key}
-          placement="top"
+          placement="bottom"
           enterDelay={150}
           title={
             <div data-testid="image-info-tooltip">
