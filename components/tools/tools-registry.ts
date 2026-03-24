@@ -151,7 +151,17 @@ export const TOOLS: ToolDefinition[] = [
       },
     ],
     promptTemplate: (params) =>
-      `Change the text "${params.match}" to "${params.replace}" in this image. Maintain the font style and background.`,
+      `Instructions: Identify the text within the provided image that corresponds to the source string: "${params.match}". Replace it with the target string: "${params.replace}" using the following logic:
+
+Positional Mapping: Distribute the words of the target string into the existing layout based on the relative positions and visual hierarchy of the original text. The new text must occupy the same "slots" and follow the same grouping as the source, regardless of the reading direction or language.
+
+Visual DNA Inheritance: Every new character must inherit the exact aesthetic properties of the text it replaces. This includes font weight, 3D perspective, material texture (e.g., wood, metal, stone), internal details, lighting, and drop shadows.
+
+Verbatim Accuracy: Render the target string exactly as typed, character-for-character. Do not modify spelling or grammar, and do not "autocorrect" to a different language. The provided string is the required literal output.
+
+Global Asset Integrity: Maintain the original background with pixel-perfect consistency. Do not regenerate, alter, or "hallucinate" any new elements in the environment. The lighting, color palette, and composition of all non-text areas must remain identical to the source.
+
+Dynamic Inpainting & Reconstruction: If the new text differs in size or shape from the original, you must seamlessly inpaint the vacated areas. Reconstruct the underlying background textures and patterns so they appear continuous and undisturbed, as if the original characters never existed in those coordinates.`,
     referenceImages: "0",
   },
   {
