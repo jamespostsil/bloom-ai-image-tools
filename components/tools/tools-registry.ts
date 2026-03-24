@@ -116,17 +116,38 @@ export const TOOLS: ToolDefinition[] = [
         placeholder: "Add any extra instructions...",
         optional: true,
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
     promptTemplate: (params) => {
       const styleId = params.styleId || "cleanup-line-art";
       const extraInstructions = params.extraInstructions?.trim();
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
       const basePrompt =
         "Transform this sketch into a polished illustration while keeping the exact composition, characters, and perspective. Clean up stray pencil marks, preserve the line work, and render it using the selected art direction.";
       const styledPrompt = applyArtStyleToPrompt(basePrompt, styleId);
-      if (!extraInstructions) {
-        return styledPrompt;
-      }
-      return `${styledPrompt}\n\nExtra instructions: ${extraInstructions}`;
+      const combinedPrompt = `${styledPrompt}${
+        extraInstructions ? `\n\nExtra instructions: ${extraInstructions}` : ""
+      }\n\n${shapeHint} ${sizeHint}`.trim();
+      return combinedPrompt;
     },
     referenceImages: "0+",
   },
@@ -149,9 +170,30 @@ export const TOOLS: ToolDefinition[] = [
         type: "text",
         placeholder: 'e.g. "In a galaxy far away"',
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
-    promptTemplate: (params) =>
-      `Instructions: Identify the text within the provided image that corresponds to the source string: "${params.match}". Replace it with the target string: "${params.replace}" using the following logic:
+    promptTemplate: (params) => {
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
+      return `Instructions: Identify the text within the provided image that corresponds to the source string: "${params.match}". Replace it with the target string: "${params.replace}" using the following logic:
 
 Positional Mapping: Distribute the words of the target string into the existing layout based on the relative positions and visual hierarchy of the original text. The new text must occupy the same "slots" and follow the same grouping as the source, regardless of the reading direction or language.
 
@@ -161,7 +203,10 @@ Verbatim Accuracy: Render the target string exactly as typed, character-for-char
 
 Global Asset Integrity: Maintain the original background with pixel-perfect consistency. Do not regenerate, alter, or "hallucinate" any new elements in the environment. The lighting, color palette, and composition of all non-text areas must remain identical to the source.
 
-Dynamic Inpainting & Reconstruction: If the new text differs in size or shape from the original, you must seamlessly inpaint the vacated areas. Reconstruct the underlying background textures and patterns so they appear continuous and undisturbed, as if the original characters never existed in those coordinates.`,
+Dynamic Inpainting & Reconstruction: If the new text differs in size or shape from the original, you must seamlessly inpaint the vacated areas. Reconstruct the underlying background textures and patterns so they appear continuous and undisturbed, as if the original characters never existed in those coordinates.
+
+${shapeHint} ${sizeHint}`.trim();
+    },
     referenceImages: "0",
   },
   {
@@ -177,12 +222,33 @@ Dynamic Inpainting & Reconstruction: If the new text differs in size or shape fr
         defaultValue: DEFAULT_ART_STYLE_ID,
         excludeNoneStyle: true,
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
     promptTemplate: (params) => {
       const selectedStyleId = params.styleId || DEFAULT_ART_STYLE_ID;
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
       const styleName =
         getArtStyleById(selectedStyleId)?.name || "the requested art direction";
-      const base = `Re-render this image using ${styleName}. Preserve the exact composition, characters, and lighting cues while only changing the rendering technique.`;
+      const base = `Re-render this image using ${styleName}. Preserve the exact composition, characters, and lighting cues while only changing the rendering technique.\n\n${shapeHint} ${sizeHint}`.trim();
       return applyArtStyleToPrompt(base, selectedStyleId);
     },
     referenceImages: "0",
@@ -208,9 +274,31 @@ Dynamic Inpainting & Reconstruction: If the new text differs in size or shape fr
         options: ["Playful", "Gothic", "Handwritten", "Neon", "Storybook"],
         defaultValue: "Storybook",
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
-    promptTemplate: (params) =>
-      `Add a stylized title "${params.title}" to this image. Use a ${params.style} font style that fits a children's book.`,
+    promptTemplate: (params) => {
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
+      return `Add a stylized title "${params.title}" to this image. Use a ${params.style} font style that fits a children's book.\n\n${shapeHint} ${sizeHint}`.trim();
+    },
     referenceImages: "0",
   },
 
@@ -248,8 +336,29 @@ Dynamic Inpainting & Reconstruction: If the new text differs in size or shape fr
         placeholder: "Any other details for the AI to follow...",
         optional: true,
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
     promptTemplate: (params) => {
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
       const character = params.character?.trim() || "the main character";
       const selectedEthnicity =
         getEthnicityByValue(params.ethnicity) ??
@@ -286,7 +395,8 @@ Target Ethnicity: ${label}
         promptText += `\n\n# Special Instructions: \n- ${extraInstructions}`;
       }
 
-      return promptText;
+      promptText += `\n\n${shapeHint} ${sizeHint}`;
+      return promptText.trim();
     },
     referenceImages: "0",
   },
@@ -302,8 +412,31 @@ Target Ethnicity: ${label}
         type: "textarea",
         placeholder: "Describe how to change the image...",
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
-    promptTemplate: (params) => params.prompt,
+    promptTemplate: (params) => {
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
+      return `${params.prompt}\n\n${shapeHint} ${sizeHint}`.trim();
+    },
     referenceImages: "0+",
   },
   {
@@ -318,9 +451,31 @@ Target Ethnicity: ${label}
         type: "text",
         placeholder: "e.g. the red ball, background clutter",
       },
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
     ],
-    promptTemplate: (params) =>
-      `Clean up the image by removing ${params.target}. Infill the area naturally to match the surrounding background.`,
+    promptTemplate: (params) => {
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
+      return `Clean up the image by removing ${params.target}. Infill the area naturally to match the surrounding background.\n\n${shapeHint} ${sizeHint}`.trim();
+    },
     referenceImages: "0",
   },
   {
@@ -328,9 +483,32 @@ Target Ethnicity: ${label}
     title: "Remove Background",
     description: "Isolate the subject on a transparent background.",
     icon: CropFreeOutlinedIcon,
-    parameters: [],
-    promptTemplate: () =>
-      `Replace the background with a perfectly flat chroma key green screen (#00FF66) while keeping the subject, lighting, and shadows untouched. Ensure the background is a solid, even fill with no checkerboard or transparency.`,
+    parameters: [
+      {
+        name: "shape",
+        label: "Shape",
+        type: "shape",
+        options: [...SHAPE_OPTIONS],
+        defaultValue: DEFAULT_SHAPE,
+        optional: true,
+      },
+      {
+        name: "size",
+        label: "Size",
+        type: "size",
+        options: [...SIZE_OPTIONS],
+        defaultValue: DEFAULT_SIZE,
+        optional: true,
+      },
+    ],
+    promptTemplate: (params) => {
+      const selectedShape = params.shape || "";
+      const shapeHint = selectedShape ? SHAPE_HINTS[selectedShape] : "";
+      const selectedSize = params.size || "";
+      const sizeHint = selectedSize ? SIZE_HINTS[selectedSize] : "";
+
+      return `Replace the background with a perfectly flat chroma key green screen (#00FF66) while keeping the subject, lighting, and shadows untouched. Ensure the background is a solid, even fill with no checkerboard or transparency.\n\n${shapeHint} ${sizeHint}`.trim();
+    },
     referenceImages: "0",
     capabilities: { "transparent-background": true },
     postProcessingFunctions: ["green-screen-to-alpha"],

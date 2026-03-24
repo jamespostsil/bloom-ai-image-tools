@@ -82,6 +82,7 @@ import {
   getImageDimensions,
   getMimeTypeFromUrl,
   prepareImageBlob,
+  detectImageShape,
 } from "../lib/imageUtils";
 import {
   getReferenceConstraints,
@@ -1488,6 +1489,19 @@ export function ImageToolsWorkspace({
         }
 
         appendHistoryEntry(newItem);
+
+        if (targetPanel === "target" && activeToolIdRef.current) {
+          const shape = detectImageShape(dimensions);
+
+          setParamsByTool((prevParams) => ({
+            ...prevParams,
+            [activeToolIdRef.current!]: {
+              ...(prevParams[activeToolIdRef.current!] || {}),
+              shape,
+            },
+          }));
+        }
+
         setState((prev) => ({
           ...prev,
           targetImageId:
@@ -1523,15 +1537,33 @@ export function ImageToolsWorkspace({
     [handleUpload]
   );
 
-  const handleSetTargetImage = useCallback((id: string) => {
-    setState((prev) => ({
-      ...prev,
-      targetImageId: id,
-      referenceImageIds: prev.referenceImageIds.filter((refId) => refId !== id),
-      rightPanelImageId:
-        prev.rightPanelImageId === id ? null : prev.rightPanelImageId,
-    }));
-  }, []);
+  const handleSetTargetImage = useCallback(
+    (id: string) => {
+      setState((prev) => {
+        const entry = prev.history.find((h) => h.id === id);
+        if (entry?.resolution && activeToolIdRef.current) {
+          const shape = detectImageShape(entry.resolution);
+
+          setParamsByTool((prevParams) => ({
+            ...prevParams,
+            [activeToolIdRef.current!]: {
+              ...(prevParams[activeToolIdRef.current!] || {}),
+              shape,
+            },
+          }));
+        }
+
+        return {
+          ...prev,
+          targetImageId: id,
+          referenceImageIds: prev.referenceImageIds.filter((refId) => refId !== id),
+          rightPanelImageId:
+            prev.rightPanelImageId === id ? null : prev.rightPanelImageId,
+        };
+      });
+    },
+    [] // activeToolIdRef is a ref
+  );
 
   const handleClearTargetImage = useCallback(() => {
     setState((prev) => ({ ...prev, targetImageId: null }));

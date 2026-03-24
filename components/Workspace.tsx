@@ -98,9 +98,9 @@ const Splitter: React.FC<SplitterProps> = ({
           backgroundColor: theme.colors.overlay,
         },
         "&:hover .splitter-thumb, &:focus-visible .splitter-thumb, &:active .splitter-thumb":
-          {
-            opacity: 1,
-          },
+        {
+          opacity: 1,
+        },
       }}
     >
       <Box
@@ -166,28 +166,28 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const slots: ImagePanelSlot[] = !showReferencePanel
     ? []
     : [
-        ...referenceImages.map((image, i) => ({
-          image,
-          slotIndex: i,
-          canRemove: true,
-          dndDropId: `panel:reference:${i}`,
-          dndDragId: `panelItem:reference:${i}:${image.id}`,
-          dataTestId: `reference-slot-${i}`,
-          uploadInputTestId: `reference-upload-input-${i}`,
-          dropLabel: "Drop to add",
-          actionLabels: { remove: "Remove reference" },
-        })),
-        {
-          image: null,
-          slotIndex: referenceImages.length,
-          canRemove: false,
-          dndDropId: `panel:reference:${referenceImages.length}`,
-          dataTestId: `reference-slot-${referenceImages.length}`,
-          uploadInputTestId: `reference-upload-input-${referenceImages.length}`,
-          dropLabel: "Drop to add",
-          actionLabels: { remove: "Remove reference" },
-        },
-      ];
+      ...referenceImages.map((image, i) => ({
+        image,
+        slotIndex: i,
+        canRemove: true,
+        dndDropId: `panel:reference:${i}`,
+        dndDragId: `panelItem:reference:${i}:${image.id}`,
+        dataTestId: `reference-slot-${i}`,
+        uploadInputTestId: `reference-upload-input-${i}`,
+        dropLabel: "Drop to add",
+        actionLabels: { remove: "Remove reference" },
+      })),
+      {
+        image: null,
+        slotIndex: referenceImages.length,
+        canRemove: false,
+        dndDropId: `panel:reference:${referenceImages.length}`,
+        dataTestId: `reference-slot-${referenceImages.length}`,
+        uploadInputTestId: `reference-upload-input-${referenceImages.length}`,
+        dropLabel: "Drop to add",
+        actionLabels: { remove: "Remove reference" },
+      },
+    ];
 
   const referenceLabel = "Reference Images";
 
@@ -482,7 +482,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           <Box
             sx={{
               position: "absolute",
-              top: 16,
+              top: 0,
               left: `${splitters.horizontal * 100}%`,
               transform: "translateX(-50%)",
               zIndex: 10, // Ensure it's above the splitter but below panel controls

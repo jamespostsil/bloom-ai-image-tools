@@ -85,15 +85,16 @@ function dataUrlToParts(dataUrl: string): { base64: string; mimeType: string } {
  * Maps shape parameter to Gemini aspect_ratio format.
  * Gemini supports: "1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"
  */
-function mapShapeToGeminiAspectRatio(shape?: string): string {
+function mapShapeToGeminiAspectRatio(shape?: string): string | undefined {
   switch (shape) {
     case "Portrait Rectangle":
       return "3:4";
     case "Landscape Rectangle":
       return "4:3";
     case "Square":
-    default:
       return "1:1";
+    default:
+      return undefined;
   }
 }
 
@@ -101,15 +102,16 @@ function mapShapeToGeminiAspectRatio(shape?: string): string {
  * Maps shape parameter to OpenAI size format.
  * GPT image models support: "1024x1024", "1536x1024" (landscape), "1024x1536" (portrait)
  */
-function mapShapeToOpenAISize(shape?: string): string {
+function mapShapeToOpenAISize(shape?: string): string | undefined {
   switch (shape) {
     case "Portrait Rectangle":
       return "1024x1536";
     case "Landscape Rectangle":
       return "1536x1024";
     case "Square":
-    default:
       return "1024x1024";
+    default:
+      return undefined;
   }
 }
 
@@ -188,10 +190,10 @@ export const editImage = async (
     modalities: ["text", "image"],
     stream: false,
     // OpenAI-style size parameter (for DALL-E, gpt-image models)
-    size: openAISize,
+    ...(openAISize ? { size: openAISize } : {}),
     // Gemini-style image configuration
     image_config: {
-      aspect_ratio: geminiAspectRatio,
+      ...(geminiAspectRatio ? { aspect_ratio: geminiAspectRatio } : {}),
       image_size: geminiImageSize,
     },
   };

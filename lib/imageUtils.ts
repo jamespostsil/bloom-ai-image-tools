@@ -61,3 +61,18 @@ export const prepareImageBlob = async (
   const dimensions = await getImageDimensions(dataUrl);
   return { dataUrl, mimeType, dimensions };
 };
+export const detectImageShape = (dimensions: ImageDimensions): string => {
+  const { width, height } = dimensions;
+  if (!width || !height) return "Square";
+  const ratio = width / height;
+  if (ratio > 1.2) return "Landscape Rectangle";
+  if (ratio < 0.8) return "Portrait Rectangle";
+  return "Square";
+};
+
+export const detectImageSize = (dimensions: ImageDimensions): string => {
+  const maxDim = Math.max(dimensions.width, dimensions.height);
+  if (maxDim > 3000) return "4k";
+  if (maxDim > 1500) return "2k";
+  return "1k";
+};
