@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
     // Prefer process.env (set by Playwright via webServer.env) over loadEnv (from .env files)
     const e2eApiKey = process.env.E2E_OPENROUTER_API_KEY || env.E2E_OPENROUTER_API_KEY || '';
     return {
+      base: env.VITE_BASE_URL || '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
