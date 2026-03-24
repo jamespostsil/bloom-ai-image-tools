@@ -71,93 +71,113 @@ export const ImageLightboxDialog: React.FC<ImageLightboxDialogProps> = ({
         sx={{
           position: "relative",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 2,
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "stretch",
+          gap: 0,
+          backgroundColor: theme.colors.surface,
+          borderRadius: "24px",
+          overflow: "hidden",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+          border: `1px solid rgba(255,255,255,0.1)`,
+          maxWidth: "95vw",
+          maxHeight: "90vh",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Controls Overlay */}
         <Box
           sx={{
-            position: "absolute",
-            top: -20,
-            right: -20,
+            flex: "1 1 auto",
             display: "flex",
-            gap: 1,
-            zIndex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            p: 2,
+            backgroundColor: "#000",
+            minWidth: 0,
           }}
         >
-          <IconButton
-            onClick={handleDownload}
+          <Box
+            component="img"
+            src={image.imageData}
+            alt={image.promptUsed || "Generated image"}
             sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              backdropFilter: "blur(4px)",
-              color: "#fff",
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
-              },
+              maxWidth: "100%",
+              maxHeight: "80vh",
+              width: "auto",
+              height: "auto",
+              objectFit: "contain",
+              borderRadius: "8px",
             }}
-            title="Download Image"
-          >
-            <DownloadIcon />
-          </IconButton>
-          <IconButton
-            onClick={onClose}
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              backdropFilter: "blur(4px)",
-              color: "#fff",
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
-              },
-            }}
-            title="Close"
-          >
-            <CloseIcon />
-          </IconButton>
+          />
         </Box>
-
-        <Box
-          component="img"
-          src={image.imageData}
-          alt={image.promptUsed || "Generated image"}
-          sx={{
-            maxWidth: "100%",
-            maxHeight: "85vh",
-            width: "auto",
-            height: "auto",
-            objectFit: "contain",
-            borderRadius: "12px",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-            border: `1px solid rgba(255,255,255,0.1)`,
-          }}
-        />
 
         {image.promptUsed && (
           <Box
             sx={{
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              backdropFilter: "blur(10px)",
-              borderRadius: "50px",
-              px: 3,
-              py: 1,
-              maxWidth: "80%",
+              width: { xs: "100%", md: "525px" },
+              flexShrink: 0,
+              backgroundColor: theme.colors.surfaceAlt,
+              borderLeft: `1px solid ${theme.colors.border}`,
+              display: "flex",
+              flexDirection: "column",
+              p: 3,
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#fff",
-                textAlign: "center",
-                opacity: 0.9,
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {image.promptUsed}
-            </Typography>
+            <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: theme.colors.accent,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                Generation Prompt
+              </Typography>
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <IconButton
+                  onClick={handleDownload}
+                  size="small"
+                  sx={{ color: theme.colors.textMuted, "&:hover": { color: "#fff" } }}
+                  title="Download Image"
+                >
+                  <DownloadIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  onClick={onClose}
+                  size="small"
+                  sx={{ color: theme.colors.textMuted, "&:hover": { color: "#fff" } }}
+                  title="Close"
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            </Box>
+
+            <Box sx={{ flex: 1, overflowY: "auto" }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: theme.colors.textPrimary,
+                  opacity: 0.9,
+                  fontWeight: 400,
+                  lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                  fontSize: "0.95rem",
+                }}
+              >
+                {image.promptUsed}
+              </Typography>
+            </Box>
+
+            {image.model && (
+              <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${theme.colors.border}` }}>
+                <Typography variant="caption" sx={{ color: theme.colors.textMuted }}>
+                  AI Model: <Box component="span" sx={{ color: theme.colors.textPrimary, fontWeight: 600 }}>{image.model}</Box>
+                </Typography>
+              </Box>
+            )}
           </Box>
         )}
       </Box>

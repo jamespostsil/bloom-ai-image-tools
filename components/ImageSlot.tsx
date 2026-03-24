@@ -625,7 +625,10 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
       }}
       onClick={
         mergedControls.upload && onUpload && !disabled
-          ? openFilePicker
+          ? (e) => {
+              e.stopPropagation();
+              openFilePicker();
+            }
           : undefined
       }
     >
@@ -679,9 +682,7 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
       <div
         ref={slotRef}
         data-testid={dataTestId}
-        role={onClick ? "button" : undefined}
         tabIndex={onClick && !disabled ? 0 : undefined}
-        onClick={disabled ? undefined : onClick}
         onPointerDownCapture={(event) => {
           // Record timing only for potentially-draggable slots/images.
           const isPotentiallyDraggable =
@@ -794,6 +795,8 @@ export const ImageSlot: React.FC<ImageSlotProps> = ({
                   }}
                   draggable={!!draggableImageId}
                   onDragStart={handleImageDragStart}
+                  onClick={onClick && !disabled ? onClick : undefined}
+                  tabIndex={onClick && !disabled ? 0 : undefined}
                 />
               </div>
             ) : (

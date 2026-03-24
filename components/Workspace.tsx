@@ -136,6 +136,7 @@ interface WorkspaceProps {
   activeToolId: string | null;
   onToggleHistoryStar: (id: string) => void;
   onImageClick?: (id: string) => void;
+  onCompare?: () => void;
 }
 
 export const Workspace: React.FC<WorkspaceProps> = ({
@@ -155,6 +156,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   activeToolId,
   onToggleHistoryStar,
   onImageClick,
+  onCompare,
 }) => {
   const tool = activeToolId ? TOOLS.find((t) => t.id === activeToolId) : null;
   const referenceMode = tool?.referenceImages ?? "0";
@@ -473,6 +475,68 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             onPointerDown={handleHorizontalPointerDown}
             onKeyDown={handleHorizontalKeyDown}
           />
+        )}
+
+        {/* Comparison Button */}
+        {targetImage && rightImage && onCompare && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 16,
+              left: `${splitters.horizontal * 100}%`,
+              transform: "translateX(-50%)",
+              zIndex: 100,
+            }}
+          >
+            <Box
+              component="button"
+              onClick={onCompare}
+              sx={{
+                bgcolor: theme.colors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "999px",
+                px: 3,
+                py: 1,
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                letterSpacing: "0.02em",
+                cursor: "pointer",
+                boxShadow: "0 8px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)",
+                transition: "all 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                textTransform: "uppercase",
+                "&:hover": {
+                  transform: "translateX(-50%)",
+                  boxShadow: "0 12px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.3)",
+                  bgcolor: theme.colors.accent,
+                  filter: "brightness(1.1)",
+                },
+                "&:active": {
+                  transform: "translateX(-50%) translateY(0) scale(0.98)",
+                },
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M16 3h5v5" />
+                <path d="M8 21H3v-5" />
+                <path d="M21 3l-7 7" />
+                <path d="M3 21l7-7" />
+              </svg>
+              Compare Side-by-Side
+            </Box>
+          </Box>
         )}
 
         <Box

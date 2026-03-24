@@ -236,7 +236,14 @@ export const ImagePanel: React.FC<ImagePanelProps> = (props) => {
         <Box
           component="button"
           type="button"
-          onClick={showUploadControls ? openFilePicker : undefined}
+          onClick={
+            showUploadControls
+              ? (e) => {
+                  e.stopPropagation();
+                  openFilePicker();
+                }
+              : undefined
+          }
           sx={{
             display: "flex",
             flexDirection: "column",

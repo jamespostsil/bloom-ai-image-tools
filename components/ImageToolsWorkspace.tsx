@@ -45,6 +45,7 @@ import { ModelChooserDialog } from "./ModelChooserDialog";
 import { OpenRouterCreditsHeader } from "./OpenRouterCreditsHeader";
 import { AIImageToolsSettingsDialog } from "./AIImageToolsSettingsDialog";
 import { ImageLightboxDialog } from "./ImageLightboxDialog";
+import { ComparisonLightboxDialog } from "./ComparisonLightboxDialog";
 import { Icon, Icons } from "./Icons";
 import bloomLogo from "../assets/bloom.svg";
 import {
@@ -355,6 +356,7 @@ export function ImageToolsWorkspace({
   const [fsLoading, setFsLoading] = useState(false);
   const [fsError, setFsError] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<ImageRecord | null>(null);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const [fsSupported, setFsSupported] = useState(() =>
     supportsFileSystemAccess()
   );
@@ -2151,6 +2153,7 @@ export function ImageToolsWorkspace({
               onToggleHistoryStar={handleToggleHistoryStar}
               onDismissError={handleDismissError}
               onImageClick={handleImageClick}
+              onCompare={() => setIsComparisonOpen(true)}
             />
           ) : (
             <HistoryGallery
@@ -2205,6 +2208,13 @@ export function ImageToolsWorkspace({
           image={lightboxImage}
           isOpen={!!lightboxImage}
           onClose={() => setLightboxImage(null)}
+        />
+
+        <ComparisonLightboxDialog
+          imageLeft={targetImage}
+          imageRight={rightItem}
+          isOpen={isComparisonOpen}
+          onClose={() => setIsComparisonOpen(false)}
         />
       </Box>
     </ThemeProvider>

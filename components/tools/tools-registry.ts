@@ -219,9 +219,23 @@ export const TOOLS: ToolDefinition[] = [
       },
       {
         name: "character",
-        label: "Target Character(s)",
-        type: "text",
+        label: "Change these character(s)",
+        type: "textarea",
         placeholder: "e.g. the boy, the girl",
+        optional: true,
+      },
+      {
+        name: "excludeCharacters",
+        label: "Do NOT change these character(s)",
+        type: "textarea",
+        placeholder: "e.g. the dog, the trees, the background person",
+        optional: true,
+      },
+      {
+        name: "extraInstructions",
+        label: "Special instructions",
+        type: "textarea",
+        placeholder: "Any other details for the AI to follow...",
         optional: true,
       },
     ],
@@ -240,7 +254,10 @@ export const TOOLS: ToolDefinition[] = [
         ? `${label}. Appearance cues: ${description}`
         : label;
 
-      const promptText = `Task: Change the ethnicity of the target.
+      const excludeCharacters = params.excludeCharacters?.trim();
+      const extraInstructions = params.extraInstructions?.trim();
+
+      let promptText = `Task: Change the ethnicity of the target.
 Target Character: ${character}
 Target Ethnicity: ${label}
 
@@ -249,7 +266,15 @@ Target Ethnicity: ${label}
 - Art Style: Maintain the original pose and art style exactly.
 - Attire: Update the clothing, shoes, etc. to reflect everyday attire common in the target ethnicity's region. Do NOT use traditional, ceremonial, or historical costumes unless otherwise directed.
 - Environment: Carefully analyze the foreground and background landscape and scenery. Redraw it to authentically match the environment and architecture of the target ethnicity's region. Remove or change any elements that do not match.
-- Quality Constraints: Maintain high anatomical accuracy for the target ethnicity with symmetrical, well-defined, clean facial features. Ensure correct anatomical proportions for limbs. The eyes, nose, and mouth must be sharp, clear, and free of distortion or artifacts.`;
+- Quality Constraints: Maintain high anatomical accuracy for ALL people in the scene (both foreground and background) with symmetrical, well-defined, clean facial features. Ensure correct anatomical proportions for limbs. The eyes, nose, and mouth of every person must be sharp, clear, and free of distortion or artifacts.`;
+
+      if (excludeCharacters) {
+        promptText += `\n\n# Exclude: \n- Do NOT change these character(s): ${excludeCharacters}. Maintain their original appearance, features, and clothing exactly as in the reference image.`;
+      }
+
+      if (extraInstructions) {
+        promptText += `\n\n# Special Instructions: \n- ${extraInstructions}`;
+      }
 
       return promptText;
     },

@@ -243,20 +243,49 @@ export const readClipboardImageFile = async (): Promise<File | null> => {
     throw new Error("Clipboard API is not available in this environment");
   }
 
+  // Attempt to check/request permission if supported
+  if (navigator.permissions && (navigator.permissions as any).query) {
+    try {
+      const result = await (navigator.permissions as any).query({ name: "clipboard-read" });
+      if (result.state === "denied") {
+        console.warn("Clipboard read permission denied.");
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   if (typeof navigator.clipboard.read !== "function") {
     throw new Error("navigator.clipboard.read is not supported");
   }
 
   const items = await navigator.clipboard.read();
+  console.log(`Clipboard read: found ${items.length} items.`);
+  
   for (const item of items) {
-    const imageType = item.types.find((type) => type.startsWith("image/"));
+    console.log(`Clipboard item types: ${item.types.join(", ")}`);
+    // Check for standard image types as well as browser-specific ones
+    const imageType = item.types.find((type) => 
+      type.startsWith("image/") || 
+      type === "image/x-png" ||
+      type === "image/jpg" ||
+      type === "image/jpeg" ||
+      type === "image/bmp" ||
+      type === "image/x-bmp" ||
+      type === "image/vnd.microsoft.icon"
+    );
+    
     if (!imageType) continue;
 
-    const blob = await item.getType(imageType);
-    const extension = imageType.split("/")[1] || "png";
-    return new File([blob], `pasted.${extension}`, {
-      type: imageType,
-    });
+    try {
+      const blob = await item.getType(imageType);
+      const extension = imageType.split("/")[1]?.replace("x-", "") || "png";
+      return new File([blob], `pasted.${extension}`, {
+        type: imageType,
+      });
+    } catch (e) {
+      console.warn(`Failed to get type ${imageType} from clipboard item:`, e);
+    }
   }
 
   return null;

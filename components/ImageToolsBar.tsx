@@ -100,6 +100,7 @@ interface ImageToolsPanelBar {
   onToggleHistoryStar: (id: string) => void;
   onDismissError: () => void;
   onImageClick?: (id: string) => void;
+  onCompare?: () => void;
 }
 
 export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
@@ -139,6 +140,7 @@ export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
   onToggleHistoryStar,
   onDismissError,
   onImageClick,
+  onCompare,
 }) => {
   const hasTargetImage = !!targetImage;
   const debugLog = React.useCallback((...args: any[]) => {
@@ -165,9 +167,7 @@ export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // This governs how much movement is required before a drag is considered active.
-      // Lower values make drags feel more immediate (especially on trackpads).
-      activationConstraint: { distance: 2 },
+      activationConstraint: { distance: 1 },
     })
   );
 
@@ -438,6 +438,7 @@ export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
               activeToolId={activeToolId}
               onToggleHistoryStar={onToggleHistoryStar}
               onImageClick={onImageClick}
+              onCompare={onCompare}
             />
 
             <ThumbnailStripsCollection
@@ -457,7 +458,7 @@ export const ImageToolsBar: React.FC<ImageToolsPanelBar> = ({
             />
           </Box>
 
-          <DragOverlay>
+          <DragOverlay dropAnimation={null}>
             {activeDragImage ? <DragPreview image={activeDragImage} /> : null}
           </DragOverlay>
         </DndContext>

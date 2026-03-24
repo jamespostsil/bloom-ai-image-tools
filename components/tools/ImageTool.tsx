@@ -123,6 +123,8 @@ interface ParamTextInputProps {
   disabled: boolean;
   multiline?: boolean;
   rows?: number;
+  minRows?: number;
+  maxRows?: number;
   persistHeightKey?: string;
   inputTestId: string;
   onCommit: (value: string) => void;
@@ -136,6 +138,8 @@ const ParamTextInput = React.memo(function ParamTextInputComponent({
   disabled,
   multiline,
   rows,
+  minRows,
+  maxRows,
   persistHeightKey,
   inputTestId,
   onCommit,
@@ -256,9 +260,12 @@ const ParamTextInput = React.memo(function ParamTextInputComponent({
       onBlur={handleBlur}
       multiline={multiline}
       rows={rows}
+      minRows={minRows}
+      maxRows={maxRows}
       fullWidth
       size="small"
       disabled={disabled}
+      InputLabelProps={{ shrink: true }}
       inputRef={(node) => {
         // When multiline, MUI renders a <textarea>.
         textareaRef.current = (node as unknown as HTMLTextAreaElement | null);
@@ -275,8 +282,8 @@ const ParamTextInput = React.memo(function ParamTextInputComponent({
               "& textarea": {
                 resize: "vertical",
                 overflow: "auto",
-                minHeight: "8rem",
-                maxHeight: "60vh",
+                minHeight: "2.5rem",
+                maxHeight: "20vh", // Shortened from 60vh to 20vh
                 fontWeight: 400,
               },
             }
@@ -478,7 +485,7 @@ const ImageToolComponent: React.FC<ToolPanelProps> = ({
             value={value}
             disabled={isProcessing}
             multiline
-            rows={6}
+            minRows={2}
             persistHeightKey={persistHeightKey}
             inputTestId={inputTestId}
             onCommit={(nextValue) =>
